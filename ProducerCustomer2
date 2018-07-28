@@ -1,0 +1,87 @@
+public class ProducerCustomer2 {
+	public static void main(String[] args) {
+		Resource r = new Resource();
+		Producer p = new Producer(r);
+		Customer c = new Customer(r);
+		Thread t0 = new Thread(p);
+		Thread t1 = new Thread(c);
+		Thread t2 = new Thread(p);
+		Thread t3 = new Thread(c);
+		t0.start();
+		t1.start();
+		t2.start();
+		t3.start();
+	}
+	
+	
+}
+
+class Producer implements Runnable {
+	private Resource r;
+	Producer(Resource r){
+		 this.r = r;
+	}
+	
+	public void run() {
+		while(true) {
+			r.set("烤鸭");
+		}
+	}
+}
+
+class Customer implements Runnable {
+	private Resource r;
+	Customer(Resource r){
+		 this.r = r;
+	}
+	
+	public void run() {
+		while(true) {
+			r.out();
+			
+		}
+	}
+}
+
+
+class Resource {
+	private String name;
+	private int count = 1;
+	private boolean flag;
+	Lock lock = new ReentrantLock();
+	
+	Condition producer_con = lock.newCondition();
+	Condition customer_con = lock.newCondition();
+	public  void set(String name) {
+		lock.lock();
+		try {
+			while(flag) {
+				try {			
+					producer_con.await();
+				} catch(Exception e) {}
+			}
+			this.name = name + count++;
+			System.out.println(Thread.currentThread().getName()+".....生产者2.0....."+this.name);
+			flag = true;
+			customer_con.signalAll();			
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	public  void out() {
+		lock.lock();
+		try {		
+			while(!flag) {
+				try {			
+					customer_con.await();
+				} catch(Exception e) {}
+			}
+			System.out.println(Thread.currentThread().getName()+"........消费者2.0........"+name);
+			flag = false;
+			producer_con.signalAll();
+		}finally {
+			lock.unlock();
+		}
+	}
+}
