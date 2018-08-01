@@ -1,0 +1,66 @@
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class TraversalFolder {
+	/**
+	 * 	给定一个目录，要求按层次显示目录结构信息，文件名后面加上星号来表示文件夹。
+	 * 	1、使用递归算法
+	 * 	2、使用List集合
+	 * 	3、使用File类中的ListFile方法来遍历文件夹
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		System.out.print("请输入文件夹路径：");
+		String path = sc.next();
+		File file = new File(path);
+		List<File> list = new ArrayList<File>();
+		selectDir(file,list);
+		for(File li : list) {
+			if(li.isDirectory()) {
+				System.out.println(li.toString()+"*");
+			}else {
+				System.out.println(li);
+			}
+
+		}
+	}
+	/*
+	 *  listFiles() 
+	 *  File[]返回一个抽象路径名数组，表示由该抽象路径名表示的目录中的文件。  
+	 */
+	
+	/*
+	 *  isDirectory() 
+	 *	测试此抽象路径名表示的文件是否为目录。  
+	 */
+	
+	/**
+	 * 	通过递归来遍历文件夹
+	 * 	如果是文件夹，则通过调用自己来遍历自己里面的内容
+	 * 	如果是文件，则添加到List集合中
+	 * @param file	指定的抽象路径
+	 * @param list	存储目录信息的集合
+	 */
+	public static void selectDir(File file,List list) {
+		if(file.exists()) {
+			// listFiles() 返回一个抽象路径名数组，表示由该抽象路径名表示的目录中的文件。
+			File[] fileArr =file.listFiles(); 
+			int i = 0;
+				while(i < fileArr.length) {
+					if(fileArr[i].isDirectory()) { //  isDirectory() 测试此抽象路径名表示的文件是否为目录。  
+						list.add(fileArr[i]);
+						selectDir(fileArr[i],list);
+					}else {
+						list.add(fileArr[i]);
+					}
+					i++;
+				}
+		}else {
+			System.out.println("路径不存在！");
+		}
+
+	}
+}
